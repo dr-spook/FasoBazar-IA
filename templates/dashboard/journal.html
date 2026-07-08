@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}FasoBazar IA — Journal{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+
+  <header class="app-header">
+    <button class="logo-trigger" id="oz-trigger" type="button" aria-label="FasoBazar IA">
+      <span class="logo-square"></span>
+      {% comment %} <span class="logo-text">FasoBazar IA</span> {% endcomment %}
+    </button>
+    <h1 class="mb-0 fw-bold" style="font-size:17px;position:absolute;left:50%;transform:translateX(-50%)">Mon Journal</h1>
+    <div class="avatar">{{ trader.initials }}</div>
+  </header>
+
+  <!-- Bilan sticky -->
+  <div style="background:var(--fb-surface);padding:12px 16px 8px;border-bottom:1px solid var(--fb-stone-200);position:sticky;top:0;z-index:10;">
+    <div class="fb-card mb-2 py-3">
+      <div class="row g-0">
+        <div class="col summary-col">
+          <div class="summary-val ventes">{{ summary.ventes_fmt }}</div>
+          <div class="summary-lbl">Ventes</div>
+        </div>
+        <div class="col summary-col">
+          <div class="summary-val achats">{{ summary.achats_fmt }}</div>
+          <div class="summary-lbl">Achats</div>
+        </div>
+        <div class="col summary-col">
+          <div class="summary-val benefice">{{ summary.benefice_fmt }}</div>
+          <div class="summary-lbl">Bénéfice</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtre date -->
+    <div class="d-flex gap-2">
+      <a href="{% url 'journal' %}?date={{ today|date:'Y-m-d' }}"
+         class="badge rounded-pill text-decoration-none {% if active_date == today %}text-white{% else %}text-secondary bg-white border{% endif %}"
+         style="padding:6px 14px;font-size:13px;{% if active_date == today %}background:var(--fb-primary){% endif %}">
+        Aujourd'hui
+      </a>
+      <a href="{% url 'journal' %}?date={{ yesterday|date:'Y-m-d' }}"
+         class="badge rounded-pill text-decoration-none {% if active_date == yesterday %}text-white{% else %}text-secondary bg-white border{% endif %}"
+         style="padding:6px 14px;font-size:13px;{% if active_date == yesterday %}background:var(--fb-primary){% endif %}">
+        Hier
+      </a>
+    </div>
+  </div>
+
+  <main class="app-main">
+    {% if transactions %}
+      {% for tx in transactions %}
+      <div class="tx-card mb-2">
+        <div class="tx-icon {{ tx.type|lower }}">
+          <i class="bi bi-{% if tx.type == 'VENTE' %}graph-up-arrow{% else %}cart3{% endif %}"></i>
+        </div>
+        <div class="flex-grow-1 min-w-0">
+          <div class="tx-product">{{ tx.product }}</div>
+          <div class="tx-time">{{ tx.created_at|date:"H\hi" }}</div>
+        </div>
+        <div>
+          <span class="tx-amount {{ tx.type|lower }}">
+            {% if tx.type == 'VENTE' %}+{% else %}−{% endif %}{{ tx.amount_formatted }}
+          </span>
+          <span class="tx-fcfa">FCFA</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-center py-5">
+        <i class="bi bi-journal-text" style="font-size:48px;color:var(--fb-stone-200)"></i>
+        <p class="mt-3 mb-1" style="color:var(--fb-stone-400);font-size:15px;">
+          {% if active_date == today %}Aucune transaction aujourd'hui{% else %}Aucune transaction ce jour{% endif %}
+        </p>
+        {% if active_date == today %}
+        <a href="{% url 'home' %}" class="btn mt-2" style="background:var(--fb-primary);color:white;border-radius:12px;">
+          <i class="bi bi-mic-fill me-2"></i>Enregistrer une vente
+        </a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navigation principale">
+    <a href="{% url 'home' %}"    class="nav-item"><i class="bi bi-mic"></i>Enregistrer</a>
+    <a href="{% url 'journal' %}" class="nav-item active"><i class="bi bi-journal"></i>Journal</a>
+    <a href="{% url 'score' %}"   class="nav-item"><i class="bi bi-star"></i>Mon Score</a>
+  </nav>
+
+</div>
+{% endblock %}

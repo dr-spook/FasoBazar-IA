@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FasoBazar IA — Dashboard IMF</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family:'Inter',system-ui,sans-serif; background:#FAFAF9; }
+    :root { --fb-primary:#059669; --fb-primary-light:#D1FAE5; --fb-stone-200:#E7E5E4; }
+    .imf-header { height:64px; background:white; border-bottom:1px solid var(--fb-stone-200); display:flex; align-items:center; justify-content:space-between; padding:0 24px; position:sticky; top:0; z-index:100; }
+    .logo-sq { width:28px; height:28px; background:var(--fb-primary); border-radius:8px; }
+    .stats-bar { background:#F5F5F4; border-bottom:1px solid var(--fb-stone-200); padding:16px 24px; }
+    .trader-row { background:white; border-radius:16px; box-shadow:0 1px 3px rgba(0,0,0,.06); padding:16px; display:flex; align-items:center; gap:16px; transition:box-shadow .15s; cursor:pointer; text-decoration:none; color:inherit; }
+    .trader-row:hover { box-shadow:0 4px 12px rgba(0,0,0,.1); color:inherit; }
+    .trader-avatar { width:48px; height:48px; border-radius:50%; background:var(--fb-primary-light); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; color:#065F46; flex-shrink:0; }
+    /* Barre de score /1000 */
+    .score-bar-track { height:6px; background:#E7E5E4; border-radius:99px; overflow:hidden; margin-top:4px; }
+    .score-bar-fill  { height:100%; border-radius:99px; }
+  </style>
+</head>
+<body>
+
+  <!-- Header sticky -->
+  <header class="imf-header">
+    <div class="d-flex align-items-center gap-2">
+      <div class="logo-sq"></div>
+      {% comment %} <span class="fw-bold fs-5">FasoBazar IA</span> {% endcomment %}
+      <span class="badge rounded-pill ms-1" style="background:var(--fb-primary-light);color:#065F46;font-size:11px;padding:4px 10px;">Dashboard IMF</span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge rounded-pill d-none d-sm-inline" style="background:#F5F5F4;color:#57534E;font-size:12px;padding:6px 14px;">Faso Crédit Partenaire</span>
+      <a href="#" class="btn btn-sm" style="background:var(--fb-primary-light);color:#065F46;border-radius:10px;font-size:12px;">← Accueil</a>
+    </div>
+  </header>
+
+  <!-- Métriques globales -->
+  <div class="stats-bar">
+    <div class="container-xl">
+      <div class="row g-3 g-md-4">
+        <div class="col-6 col-md-3">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-people text-secondary" style="font-size:13px;"></i>
+            <span style="font-size:11px;color:#78716C;text-transform:uppercase;letter-spacing:.06em;">Commerçantes</span>
+          </div>
+          <div class="fw-bold fs-4">{{ total_traders }}</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-patch-check" style="font-size:13px;color:var(--fb-primary)"></i>
+            <span style="font-size:11px;color:#78716C;text-transform:uppercase;letter-spacing:.06em;">Éligibles crédit</span>
+          </div>
+          <div class="fw-bold fs-4" style="color:var(--fb-primary)">{{ total_eligible }}</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-award" style="font-size:13px;color:#059669"></i>
+            <span style="font-size:11px;color:#78716C;text-transform:uppercase;letter-spacing:.06em;">Score confirmé</span>
+          </div>
+          <div class="fw-bold fs-4" style="color:#059669">{{ total_confirmes }}</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-graph-up text-secondary" style="font-size:13px;"></i>
+            <span style="font-size:11px;color:#78716C;text-transform:uppercase;letter-spacing:.06em;">Total ventes (FCFA)</span>
+          </div>
+          <div class="fw-bold fs-4">{{ total_revenue }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Corps -->
+  <div class="container-xl py-4">
+
+    <!-- Titre + barre de recherche -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
+      <h2 class="fw-bold mb-0" style="font-size:20px;">Portefeuille commerçantes</h2>
+      <form method="get" action="{% url 'imf-dashboard' %}" class="d-flex gap-2" style="min-width:280px;">
+        <div class="input-group">
+          <span class="input-group-text" style="background:white;border-radius:12px 0 0 12px;border-color:#E7E5E4;">
+            <i class="bi bi-search text-secondary"></i>
+          </span>
+          <input type="text" name="q" value="{{ query }}" placeholder="Nom ou numéro..."
+                 class="form-control" style="border-left:none;border-radius:0 12px 12px 0;border-color:#E7E5E4;"
+                 autocomplete="off">
+        </div>
+        <button type="submit" class="btn fw-semibold" style="background:var(--fb-primary);color:white;border-radius:12px;white-space:nowrap;">
+          Chercher
+        </button>
+      </form>
+    </div>
+
+    {% if query %}
+    <p class="mb-3 text-secondary" style="font-size:13px;">
+      {{ total_traders }} résultat{% if total_traders != 1 %}s{% endif %} pour "{{ query }}"
+      — <a href="{% url 'imf-dashboard' %}" style="color:var(--fb-primary);">Effacer</a>
+    </p>
+    {% endif %}
+
+    <!-- Liste commerçantes -->
+    <div class="d-flex flex-column gap-3">
+      {% for item in trader_data %}
+      <a href="{% url 'imf-detail' item.trader.id %}" class="trader-row text-decoration-none">
+
+        <div class="trader-avatar">{{ item.trader.initials }}</div>
+
+        <div class="flex-grow-1 min-w-0">
+          <div class="fw-semibold mb-1" style="color:#1C1917;font-size:15px;">
+            {{ item.trader.name }}
+            {% if item.trader.is_premium %}
+            <span class="badge ms-1" style="background:#F59E0B;color:white;font-size:10px;vertical-align:middle;">PREMIUM</span>
+            {% endif %}
+          </div>
+          <div style="font-size:12px;color:#78716C;">
+            {{ item.trader.phone }} · {{ item.score.transaction_count }} transactions ·
+            {{ item.trader.get_language_display }}
+          </div>
+          <!-- Barre de score /1000 -->
+          <div class="score-bar-track mt-2">
+            <div class="score-bar-fill"
+                 style="width:{{ item.score.score_percent }}%;
+                        background:{% if item.score.score >= 700 %}#059669{% elif item.score.score >= 300 %}#F59E0B{% else %}#A8A29E{% endif %};">
+            </div>
+          </div>
+        </div>
+
+        <!-- Score + badge -->
+        <div class="flex-shrink-0 text-end me-1" style="min-width:80px;">
+          <div class="fw-bold fs-5
+            {% if item.score.score >= 700 %}text-success
+            {% elif item.score.score >= 300 %}text-warning
+            {% else %}text-secondary{% endif %}">
+            {{ item.score.score }}
+            <span style="font-size:11px;font-weight:400;color:#A8A29E;">/1000</span>
+          </div>
+          {% if item.score.eligible_credit %}
+          <div class="d-flex align-items-center gap-1 justify-content-end mt-1">
+            <i class="bi bi-patch-check-fill" style="color:var(--fb-primary);font-size:12px;"></i>
+            <span style="font-size:11px;color:var(--fb-primary);font-weight:600;">Éligible</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <i class="bi bi-chevron-right text-secondary flex-shrink-0"></i>
+      </a>
+      {% empty %}
+      <div class="text-center py-5 text-secondary">
+        <i class="bi bi-search" style="font-size:48px;opacity:.3;"></i>
+        <p class="mt-3">Aucune commerçante trouvée{% if query %} pour "{{ query }}"{% endif %}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

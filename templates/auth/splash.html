@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>FasoBazar IA</title>
+  <meta name="theme-color" content="#059669">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="/static/pwa/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32x32.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #059669;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow: hidden;
+    }
+    .splash-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeIn .6s ease-out;
+    }
+    .logo-icon {
+      width: 100px; height: 100px;
+      background: rgba(255,255,255,.15);
+      border-radius: 28px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+      animation: scaleIn .5s ease-out;
+    }
+    .logo-icon svg { width: 56px; height: 56px; }
+    .logo-text {
+      font-size: 36px; font-weight: 800;
+      color: white; letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .logo-sub {
+      font-size: 14px; color: rgba(255,255,255,.75);
+      text-align: center; line-height: 1.5;
+      max-width: 240px;
+    }
+    /* Barre de progression */
+    .progress-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: 3px; background: rgba(255,255,255,.2);
+    }
+    .progress-fill {
+      height: 100%; background: white;
+      animation: progress 2.2s ease-in-out forwards;
+    }
+    /* Badge STIC */
+    .stic-badge {
+      margin-top: 32px;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.3);
+      color: white; font-size: 12px; font-weight: 600;
+      padding: 6px 16px; border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+      from { transform: scale(.85); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    @keyframes progress {
+      from { width: 0%; }
+      to   { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="splash-content">
+  <!-- Icône micro -->
+  <div class="logo-icon">
+    <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="4" width="20" height="32" rx="10" fill="white"/>
+      <path d="M8 28c0 11.046 8.954 20 20 20s20-8.954 20-20" stroke="white" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+      <line x1="28" y1="48" x2="28" y2="54" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="20" y1="54" x2="36" y2="54" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <div class="logo-text">FasoBazar IA</div>
+  <div class="logo-sub">Comptabilité vocale pour commerçantes du Burkina Faso</div>
+
+  <div class="stic-badge">🏆 Sélectionné STIC'26 — Top 100 / 700 projets</div>
+</div>
+
+<!-- Barre de progression en bas -->
+<div class="progress-bar">
+  <div class="progress-fill"></div>
+</div>
+
+<script>
+// Redirection après 2.3 secondes
+const redirectUrl = "{{ redirect_url }}";
+setTimeout(() => {
+  window.location.href = redirectUrl;
+}, 2300);
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/static/pwa/sw.js', { scope: '/' }).catch(() => {});
+}
+</script>
+
+</body>
+</html>

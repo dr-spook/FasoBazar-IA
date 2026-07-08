@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+{% block title %}FasoBazar IA — Enregistrer{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+
+  <header class="app-header">
+    <button class="logo-trigger" id="oz-trigger" type="button" aria-label="FasoBazar IA">
+      <span class="logo-square"></span>
+      {% comment %} <span class="logo-text">FasoBazar IA</span> {% endcomment %}
+    </button>
+    <div class="d-flex align-items-center gap-2">
+      {% if trader.is_premium %}
+      <span class="badge rounded-pill" style="background:#F59E0B;color:white;font-size:10px;padding:3px 8px;">PREMIUM</span>
+      {% endif %}
+      <div class="avatar" title="{{ trader.name }}">{{ trader.initials }}</div>
+    </div>
+  </header>
+
+  <main class="app-main" id="main-content">
+
+    <!-- Score mini + bilan -->
+    <div class="fb-card mb-3">
+      <!-- Score pill -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <p class="text-uppercase mb-0" style="font-size:11px;font-weight:600;color:var(--fb-stone-400);letter-spacing:.08em">Score de confiance</p>
+          <div class="d-flex align-items-baseline gap-1 mt-1">
+            <span class="fw-bold" style="font-size:28px;color:{% if score.score >= 700 %}var(--fb-primary){% elif score.score >= 300 %}#F59E0B{% else %}#A8A29E{% endif %}">{{ score.score }}</span>
+            <span style="font-size:14px;color:#A8A29E;">/1000</span>
+          </div>
+        </div>
+        <a href="{% url 'score' %}" class="btn btn-sm text-decoration-none"
+           style="background:var(--fb-primary-light);color:#065F46;border-radius:10px;font-size:12px;font-weight:600;">
+          Voir détails →
+        </a>
+      </div>
+      <!-- Barre de progression -->
+      <div style="background:#E7E5E4;border-radius:99px;height:6px;overflow:hidden;">
+        <div style="background:{% if score.score >= 700 %}var(--fb-primary){% elif score.score >= 300 %}#F59E0B{% else %}#A8A29E{% endif %};height:100%;width:{{ score.score_percent }}%;border-radius:99px;transition:width .6s ease-out;"></div>
+      </div>
+      <!-- Bilan du jour -->
+      <div class="row g-0 mt-3 pt-3" style="border-top:1px solid #F5F5F4;">
+        <div class="col summary-col">
+          <div class="summary-val ventes" id="sum-ventes">{{ summary.ventes_fmt }}</div>
+          <div class="summary-lbl">Ventes</div>
+        </div>
+        <div class="col summary-col">
+          <div class="summary-val achats" id="sum-achats">{{ summary.achats_fmt }}</div>
+          <div class="summary-lbl">Achats</div>
+        </div>
+        <div class="col summary-col">
+          <div class="summary-val benefice" id="sum-benefice">{{ summary.benefice_fmt }}</div>
+          <div class="summary-lbl">Bénéfice</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bouton vocal central -->
+    <div class="d-flex flex-column align-items-center my-4">
+      <button class="vocal-btn" id="vocal-btn" aria-label="Appuyer pour enregistrer" aria-pressed="false">
+        <i class="bi bi-mic-fill" id="vocal-icon"></i>
+      </button>
+      <p class="mt-3 text-center" style="font-size:13px;color:var(--fb-stone-400);" id="vocal-label">
+        Appuie pour enregistrer
+      </p>
+    </div>
+
+    <!-- Transactions récentes -->
+    <div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <p class="text-uppercase mb-0" style="font-size:11px;font-weight:600;color:var(--fb-stone-400);letter-spacing:.08em">Récent</p>
+        <a href="{% url 'journal' %}" style="font-size:12px;color:var(--fb-primary);text-decoration:none;font-weight:600;">Tout voir →</a>
+      </div>
+
+      <div id="tx-list">
+        {% if recent_txs %}
+          {% for tx in recent_txs %}
+          <div class="tx-card mb-2">
+            <div class="tx-icon {{ tx.type|lower }}">
+              <i class="bi bi-{% if tx.type == 'VENTE' %}graph-up-arrow{% else %}cart3{% endif %}"></i>
+            </div>
+            <div class="flex-grow-1 min-w-0">
+              <div class="tx-product">{{ tx.product }}</div>
+              <div class="tx-time">{{ tx.created_at|date:"H\hi" }}</div>
+            </div>
+            <div>
+              <span class="tx-amount {{ tx.type|lower }}">
+                {% if tx.type == 'VENTE' %}+{% else %}−{% endif %}{{ tx.amount_formatted }}
+              </span>
+              <span class="tx-fcfa">FCFA</span>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center py-5" id="empty-state">
+            <i class="bi bi-journal-text" style="font-size:48px;color:var(--fb-stone-200)"></i>
+            <p class="mt-3 mb-1" style="color:var(--fb-stone-400);font-size:15px;">Ta première vente t'attend</p>
+            <p style="color:var(--fb-stone-400);font-size:13px;">Appuie sur le bouton et parle</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Bannière premium si non premium -->
+    {% if not trader.is_premium %}
+    <div class="mt-3 p-3 rounded-3 d-flex align-items-center gap-3" style="background:linear-gradient(135deg,#FEF3C7,#FDE68A);">
+      <i class="bi bi-star-fill" style="font-size:20px;color:#B45309;flex-shrink:0;"></i>
+      <div class="flex-grow-1">
+        <div class="fw-semibold" style="font-size:13px;color:#78350F;">Passe en Premium</div>
+        <div style="font-size:12px;color:#92400E;">500 FCFA/mois — Demande de crédit directe</div>
+      </div>
+      <a href="{% url 'score' %}" class="btn btn-sm fw-semibold text-decoration-none"
+         style="background:#B45309;color:white;border-radius:10px;font-size:12px;white-space:nowrap;">
+        Voir
+      </a>
+    </div>
+    {% endif %}
+
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navigation principale">
+    <a href="{% url 'home' %}"    class="nav-item active"><i class="bi bi-mic"></i>Enregistrer</a>
+    <a href="{% url 'journal' %}" class="nav-item"><i class="bi bi-journal"></i>Journal</a>
+    <a href="{% url 'score' %}"   class="nav-item"><i class="bi bi-star"></i>Mon Score</a>
+  </nav>
+</div>
+
+<!-- Modal clarification -->
+<div class="modal fade" id="clarificationModal" tabindex="-1" aria-modal="true">
+  <div class="modal-dialog modal-dialog-centered mx-3">
+    <div class="modal-content" style="border-radius:24px;border:none;">
+      <div class="modal-body text-center p-4">
+        <div class="mb-3">
+          <div style="width:48px;height:48px;background:#FEF3C7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;">
+            <i class="bi bi-question-circle" style="font-size:22px;color:#B45309"></i>
+          </div>
+        </div>
+        <h5 class="fw-bold mb-1">C'était quoi ?</h5>
+        <p id="clarification-transcript" class="text-muted fst-italic mb-4" style="font-size:13px;"></p>
+        <div class="row g-3">
+          <div class="col">
+            <button type="button" class="btn btn-lg w-100 fw-semibold" id="btn-vente"
+              style="background:var(--fb-primary);color:white;border-radius:12px;height:56px;">
+              <i class="bi bi-graph-up-arrow me-2"></i>Vente
+            </button>
+          </div>
+          <div class="col">
+            <button type="button" class="btn btn-lg w-100 fw-semibold" id="btn-achat"
+              style="background:#F59E0B;color:white;border-radius:12px;height:56px;">
+              <i class="bi bi-cart3 me-2"></i>Achat
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const DEMO_TRADER_ID   = '{{ trader.id }}';
+const CONFIDENCE_THRESHOLD = 0.65;
+let mediaRecorder = null;
+let audioChunks   = [];
+let isRecording   = false;
+
+const btn   = document.getElementById('vocal-btn');
+const icon  = document.getElementById('vocal-icon');
+const label = document.getElementById('vocal-label');
+
+function setBtnState(state) {
+  btn.classList.remove('recording', 'processing');
+  label.style.color = '';
+  switch(state) {
+    case 'idle':
+      icon.className = 'bi bi-mic-fill';
+      label.textContent = 'Appuie pour enregistrer';
+      btn.disabled = false;
+      btn.setAttribute('aria-pressed','false');
+      break;
+    case 'recording':
+      btn.classList.add('recording');
+      icon.className = 'bi bi-stop-fill';
+      label.textContent = 'Parle maintenant...';
+      label.style.color = '#DC2626';
+      btn.setAttribute('aria-pressed','true');
+      break;
+    case 'processing':
+      btn.classList.add('processing');
+      icon.className = 'bi bi-hourglass-split';
+      label.textContent = 'Traitement IA en cours...';
+      label.style.color = 'var(--fb-primary)';
+      btn.disabled = true;
+      break;
+    case 'error':
+      icon.className = 'bi bi-mic-mute-fill';
+      label.textContent = 'Réessaie';
+      label.style.color = '#DC2626';
+      btn.disabled = false;
+      setTimeout(() => setBtnState('idle'), 3000);
+      break;
+  }
+}
+
+btn.addEventListener('pointerdown', async (e) => {
+  if (btn.disabled) return;
+  e.preventDefault();
+  if (isRecording) stopRecording();
+  else await startRecording();
+});
+
+async function startRecording() {
+  if (isRecording) return;
+  try {
+    const stream   = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus'
+      : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
+    mediaRecorder = new MediaRecorder(stream, { mimeType });
+    audioChunks   = [];
+    isRecording   = true;
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.start(100);
+    setBtnState('recording');
+    setTimeout(() => { if (isRecording) stopRecording(); }, 30000);
+  } catch(err) {
+    showToast('Permission micro refusée', 'error');
+    setBtnState('error');
+  }
+}
+
+function stopRecording() {
+  if (!mediaRecorder || !isRecording) return;
+  isRecording = false;
+  setBtnState('processing');
+  mediaRecorder.onstop = async () => {
+    mediaRecorder.stream.getTracks().forEach(t => t.stop());
+    if (audioChunks.length === 0) { setBtnState('idle'); return; }
+    const mimeType = mediaRecorder.mimeType || 'audio/webm';
+    const blob     = new Blob(audioChunks, { type: mimeType });
+    if (blob.size < 1000) {
+      showToast('Note trop courte, réessaie', 'error');
+      setBtnState('idle');
+      return;
+    }
+    await processPipeline(blob);
+  };
+  mediaRecorder.stop();
+}
+
+async function processPipeline(blob) {
+  const isOz = window._OZ_MODE || false;
+  const form  = new FormData();
+  form.append('audio', blob, 'recording.webm');
+  try {
+    const resp = await fetch('/api/transcribe/', {
+      method: 'POST',
+      headers: isOz ? { 'X-Oz-Mode': 'true' } : {},
+      body: form,
+    });
+    const json = await resp.json();
+    if (!json.success) {
+      showToast(json.error?.message || 'Erreur IA', 'error');
+      setBtnState('idle');
+      return;
+    }
+    const { product, amount, type, confidence, transcript } = json.data;
+    if (!amount || amount <= 0) {
+      showToast("Je n'ai pas compris le montant. Réessaie.", 'error');
+      setBtnState('idle');
+      return;
+    }
+    if (!type || confidence < CONFIDENCE_THRESHOLD) {
+      showClarification(product, amount, transcript || '', json.data.mode);
+      setBtnState('idle');
+      return;
+    }
+    await saveTransaction(product, amount, type, transcript || '', json.data.mode || 'REAL');
+  } catch(e) {
+    showToast('Erreur réseau. Vérifie ta connexion.', 'error');
+    setBtnState('idle');
+  }
+}
+
+let _pendingTx = null;
+const clarModal = new bootstrap.Modal(document.getElementById('clarificationModal'));
+
+function showClarification(product, amount, transcript, mode) {
+  _pendingTx = { product, amount, transcript, mode };
+  document.getElementById('clarification-transcript').textContent =
+    transcript ? `"${transcript.slice(0, 80)}"` : `${product} — ${amount.toLocaleString('fr-FR')} FCFA`;
+  clarModal.show();
+  document.getElementById('btn-vente').focus();
+}
+
+document.getElementById('btn-vente').addEventListener('click', async () => {
+  clarModal.hide();
+  if (_pendingTx) await saveTransaction(_pendingTx.product, _pendingTx.amount, 'VENTE', _pendingTx.transcript, _pendingTx.mode);
+  _pendingTx = null;
+});
+document.getElementById('btn-achat').addEventListener('click', async () => {
+  clarModal.hide();
+  if (_pendingTx) await saveTransaction(_pendingTx.product, _pendingTx.amount, 'ACHAT', _pendingTx.transcript, _pendingTx.mode);
+  _pendingTx = null;
+});
+
+async function saveTransaction(product, amount, type, transcript, source) {
+  try {
+    const resp = await fetch('/api/transactions/', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+      body: JSON.stringify({ trader_id: DEMO_TRADER_ID, product, amount, type, source: source || 'WEB', raw_transcript: transcript }),
+    });
+    const json = await resp.json();
+    if (!json.success) { showToast(json.error?.message || "Erreur", 'error'); setBtnState('idle'); return; }
+
+    const tx    = json.data.transaction;
+    const score = json.data.new_score;
+
+    prependTxCard(tx);
+    updateSummary(type, amount);
+    updateScoreDisplay(score);
+
+    showToast(
+      `${type === 'VENTE' ? '📈' : '🛒'} ${type} — ${amount.toLocaleString('fr-FR')} FCFA | Score : ${score}/1000`,
+      type === 'VENTE' ? 'success' : 'achat'
+    );
+    setBtnState('idle');
+  } catch(e) {
+    showToast('Erreur réseau', 'error');
+    setBtnState('idle');
+  }
+}
+
+function prependTxCard(tx) {
+  const empty = document.getElementById('empty-state');
+  if (empty) empty.remove();
+  const list    = document.getElementById('tx-list');
+  const isVente = tx.type === 'VENTE';
+  const sign    = isVente ? '+' : '−';
+  const cls     = isVente ? 'vente' : 'achat';
+  const icn     = isVente ? 'graph-up-arrow' : 'cart3';
+  const t       = new Date(tx.created_at);
+  const timeFmt = `${String(t.getHours()).padStart(2,'0')}h${String(t.getMinutes()).padStart(2,'0')}`;
+  const card = document.createElement('div');
+  card.className = 'tx-card mb-2';
+  card.innerHTML = `
+    <div class="tx-icon ${cls}"><i class="bi bi-${icn}"></i></div>
+    <div class="flex-grow-1 min-w-0">
+      <div class="tx-product">${tx.product}</div>
+      <div class="tx-time">${timeFmt}</div>
+    </div>
+    <div>
+      <span class="tx-amount ${cls}">${sign}${tx.amount_fmt}</span>
+      <span class="tx-fcfa">FCFA</span>
+    </div>`;
+  list.prepend(card);
+}
+
+const _sums = {
+  ventes: parseInt('{{ summary.total_ventes }}') || 0,
+  achats: parseInt('{{ summary.total_achats }}') || 0,
+};
+function fmtNum(n) { return n.toLocaleString('fr-FR'); }
+
+function updateSummary(type, amount) {
+  if (type === 'VENTE') _sums.ventes += amount;
+  else                  _sums.achats += amount;
+  document.getElementById('sum-ventes').textContent   = fmtNum(_sums.ventes);
+  document.getElementById('sum-achats').textContent   = fmtNum(_sums.achats);
+  document.getElementById('sum-benefice').textContent = fmtNum(_sums.ventes - _sums.achats);
+}
+
+function updateScoreDisplay(newScore) {
+  // Met à jour le score affiché sans recharger la page
+  const scoreEl = document.querySelector('.fw-bold[style*="font-size:28px"]');
+  const barEl   = document.querySelector('[style*="border-radius:99px"][style*="height:6px"] div');
+  if (scoreEl) scoreEl.textContent = newScore;
+  if (barEl)   barEl.style.width   = Math.min(100, newScore / 10) + '%';
+}
+</script>
+{% endblock %}

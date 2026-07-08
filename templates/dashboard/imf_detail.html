@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ trader.name }} — FasoBazar IA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family:'Inter',system-ui,sans-serif; background:#FAFAF9; }
+    :root { --fb-primary:#059669; --fb-primary-light:#D1FAE5; }
+    .tx-row { background:white; border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+    .tx-icon { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .tx-icon.vente { background:var(--fb-primary-light); color:var(--fb-primary); }
+    .tx-icon.achat { background:#FEF3C7; color:#B45309; }
+    .score-bar-track { height:8px; background:#E7E5E4; border-radius:99px; overflow:hidden; }
+    .score-bar-fill  { height:100%; border-radius:99px; }
+  </style>
+</head>
+<body>
+<div class="container-xl py-0">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center gap-3 py-3 border-bottom mb-4" style="border-color:#E7E5E4!important;position:sticky;top:0;background:#FAFAF9;z-index:10;">
+    <a href="{% url 'imf-dashboard' %}" class="btn btn-sm btn-light rounded-3">
+      <i class="bi bi-chevron-left"></i> Retour
+    </a>
+    <div>
+      <h1 class="mb-0 fw-bold" style="font-size:18px;">{{ trader.name }}</h1>
+      <span style="font-size:12px;color:#78716C;">{{ trader.phone }} · {{ trader.get_language_display }}</span>
+    </div>
+    {% if trader.is_premium %}
+    <span class="badge ms-auto" style="background:#F59E0B;color:white;">PREMIUM</span>
+    {% endif %}
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Carte profil -->
+    <div class="col-lg-4">
+      <div class="card border-0 rounded-4 mb-3" style="box-shadow:0 1px 6px rgba(0,0,0,.08)">
+        <div class="card-body p-4">
+
+          <!-- Avatar + badge -->
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <div style="width:64px;height:64px;border-radius:50%;background:var(--fb-primary-light);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#065F46;">
+              {{ trader.initials }}
+            </div>
+            <div>
+              <div class="fw-bold fs-5">{{ trader.name }}</div>
+              <span class="badge rounded-pill mt-1"
+                style="font-size:12px;
+                {% if score.status == 'CONFIRME' %}background:var(--fb-primary);color:white;
+                {% elif score.status == 'ELIGIBLE' %}background:#FEF3C7;color:#B45309;
+                {% else %}background:#F5F5F4;color:#78716C;{% endif %}">
+                {{ score.status_label }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Score /1000 avec barre -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-baseline mb-1">
+              <span style="font-size:12px;color:#78716C;font-weight:600;">Score de Confiance</span>
+              <span class="fw-bold" style="font-size:22px;
+                {% if score.score >= 700 %}color:var(--fb-primary)
+                {% elif score.score >= 300 %}color:#F59E0B
+                {% else %}color:#A8A29E{% endif %}">
+                {{ score.score }}<span style="font-size:12px;color:#A8A29E;">/1000</span>
+              </span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" style="
+                width:{{ score.score_percent }}%;
+                background:{% if score.score >= 700 %}var(--fb-primary){% elif score.score >= 300 %}#F59E0B{% else %}#A8A29E{% endif %};
+                transition:width .6s ease-out;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="row g-2 mb-3">
+            <div class="col-6 text-center p-2 rounded-3" style="background:#F5F5F4;">
+              <div class="fw-bold" style="font-size:18px;">{{ score.transaction_count }}</div>
+              <div style="font-size:11px;color:#78716C;">Transactions</div>
+            </div>
+            <div class="col-6 text-center p-2 rounded-3" style="background:#F5F5F4;">
+              <div class="fw-bold" style="font-size:18px;">{{ score.total_revenue|floatformat:0 }}</div>
+              <div style="font-size:11px;color:#78716C;">FCFA ventes</div>
+            </div>
+            <div class="col-6 text-center p-2 rounded-3" style="background:#F5F5F4;">
+              <div class="fw-bold" style="font-size:18px;">{{ summary.ventes_fmt }}</div>
+              <div style="font-size:11px;color:#78716C;">Ventes FCFA</div>
+            </div>
+            <div class="col-6 text-center p-2 rounded-3" style="background:#F5F5F4;">
+              <div class="fw-bold" style="font-size:18px;{% if score.eligible_credit %}color:var(--fb-primary){% endif %}">
+                {% if score.eligible_credit %}✓{% else %}✗{% endif %}
+              </div>
+              <div style="font-size:11px;color:#78716C;">Éligible crédit</div>
+            </div>
+          </div>
+
+          <!-- Recommandation crédit -->
+          {% if score.eligible_credit %}
+          <div class="p-3 rounded-3" style="background:#F0FDF4;border:1px solid #BBF7D0;">
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-patch-check-fill flex-shrink-0" style="color:var(--fb-primary);margin-top:2px;"></i>
+              <div>
+                <div class="fw-semibold" style="font-size:13px;color:#065F46;">Profil éligible au microcrédit</div>
+                <div style="font-size:12px;color:#065F46;margin-top:2px;">
+                  Montant suggéré : <strong>{{ credit_estimate }} FCFA</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div class="p-3 rounded-3" style="background:#F5F5F4;">
+            <div class="d-flex align-items-start gap-2">
+              <i class="bi bi-info-circle flex-shrink-0 text-secondary" style="margin-top:2px;"></i>
+              <div style="font-size:13px;color:#78716C;">Score insuffisant — à suivre</div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Journal transactions -->
+    <div class="col-lg-8">
+      <h2 class="fw-bold mb-3" style="font-size:18px;">
+        Journal — {{ transactions|length }} transactions
+        <span class="badge ms-2" style="background:#F5F5F4;color:#57534E;font-size:12px;font-weight:500;">30 dernières</span>
+      </h2>
+      <div class="d-flex flex-column gap-2">
+        {% for tx in transactions %}
+        <div class="tx-row">
+          <div class="tx-icon {{ tx.type|lower }}">
+            <i class="bi bi-{% if tx.type == 'VENTE' %}graph-up-arrow{% else %}cart3{% endif %}"></i>
+          </div>
+          <div class="flex-grow-1 min-w-0">
+            <div class="fw-semibold text-truncate" style="font-size:14px;">{{ tx.product }}</div>
+            <div style="font-size:12px;color:#A8A29E;">{{ tx.created_at|date:"d/m/Y H\hi" }}
+              {% if tx.source == 'WHATSAPP' %}<span class="badge ms-1" style="background:#25D366;color:white;font-size:10px;">WhatsApp</span>{% endif %}
+            </div>
+          </div>
+          <div class="fw-bold text-nowrap {% if tx.type == 'VENTE' %}text-success{% else %}text-warning{% endif %}" style="font-size:14px;">
+            {% if tx.type == 'VENTE' %}+{% else %}−{% endif %}{{ tx.amount_formatted }} FCFA
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-secondary text-center py-4">Aucune transaction</p>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

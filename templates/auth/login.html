@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>FasoBazar IA — Connexion</title>
+  <meta name="theme-color" content="#059669">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/static/pwa/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32x32.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --fb-primary: #059669; --fb-primary-dark: #047857; --fb-primary-light: #D1FAE5; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #FAFAF9;
+      min-height: 100dvh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px 16px;
+    }
+    .auth-shell { max-width: 400px; width: 100%; }
+
+    /* Header */
+    .auth-header {
+      text-align: center; margin-bottom: 32px;
+    }
+    .logo-row {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin-bottom: 8px;
+    }
+    .logo-sq {
+      width: 44px; height: 44px; background: var(--fb-primary);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-name { font-size: 24px; font-weight: 800; color: #1C1917; }
+    .auth-title { font-size: 20px; font-weight: 700; color: #1C1917; margin-bottom: 4px; }
+    .auth-sub   { font-size: 14px; color: #78716C; }
+
+    /* Card */
+    .auth-card {
+      background: white; border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      margin-bottom: 16px;
+    }
+
+    /* Form */
+    .form-label-fb { font-size: 13px; font-weight: 600; color: #1C1917; margin-bottom: 6px; }
+    .form-control-fb {
+      width: 100%; height: 50px;
+      border: 1.5px solid #E7E5E4; border-radius: 12px;
+      padding: 0 16px; font-size: 15px; font-family: 'Inter', system-ui;
+      background: #FAFAF9; color: #1C1917;
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+    .form-control-fb:focus {
+      border-color: var(--fb-primary);
+      box-shadow: 0 0 0 3px rgba(5,150,105,.12);
+      background: white;
+    }
+    .form-control-fb::placeholder { color: #A8A29E; }
+    .input-group-fb { position: relative; margin-bottom: 16px; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: #A8A29E; font-size: 16px; pointer-events: none;
+    }
+    .form-control-fb.has-icon { padding-left: 40px; }
+
+    /* Toggle mot de passe */
+    .pwd-toggle {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      color: #A8A29E; cursor: pointer; font-size: 16px;
+      background: none; border: none; padding: 0;
+    }
+    .pwd-toggle:hover { color: var(--fb-primary); }
+
+    /* Erreur */
+    .error-box {
+      background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px;
+      padding: 10px 14px; font-size: 13px; color: #DC2626;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Remember me */
+    .remember-row {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
+    }
+    .custom-check {
+      width: 18px; height: 18px; border-radius: 5px;
+      border: 1.5px solid #E7E5E4; background: white;
+      cursor: pointer; appearance: none; -webkit-appearance: none;
+      flex-shrink: 0; transition: all .15s;
+    }
+    .custom-check:checked {
+      background: var(--fb-primary); border-color: var(--fb-primary);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+    }
+    .remember-label { font-size: 13px; color: #57534E; cursor: pointer; }
+
+    /* Bouton connexion */
+    .btn-login {
+      width: 100%; height: 52px; border-radius: 14px; border: none;
+      background: var(--fb-primary); color: white;
+      font-size: 16px; font-weight: 700; font-family: 'Inter', system-ui;
+      cursor: pointer; transition: background .15s, transform .1s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-login:hover   { background: var(--fb-primary-dark); }
+    .btn-login:active  { transform: scale(.98); }
+    .btn-login:disabled { opacity: .6; cursor: wait; }
+
+    /* Séparateur */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 20px 0; color: #A8A29E; font-size: 13px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: #E7E5E4;
+    }
+
+    /* Lien inscription */
+    .signup-link {
+      text-align: center; font-size: 14px; color: #57534E;
+    }
+    .signup-link a {
+      color: var(--fb-primary); font-weight: 700; text-decoration: none;
+    }
+    .signup-link a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="auth-shell">
+
+  <!-- Header -->
+  <div class="auth-header">
+    <div class="logo-row">
+      <div class="logo-sq">
+        <i class="bi bi-mic-fill" style="font-size:20px;color:white;"></i>
+      </div>
+      <span class="logo-name">FasoBazar IA</span>
+    </div>
+    <h1 class="auth-title">Connexion</h1>
+    <p class="auth-sub">Accède à ton journal de caisse</p>
+  </div>
+
+  <!-- Card login -->
+  <div class="auth-card">
+
+    {% if error %}
+    <div class="error-box">
+      <i class="bi bi-exclamation-circle-fill"></i>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" id="login-form">
+      {% csrf_token %}
+
+      <!-- Numéro de téléphone -->
+      <label class="form-label-fb" for="phone">Numéro de téléphone</label>
+      <div class="input-group-fb">
+        <i class="bi bi-telephone-fill input-icon"></i>
+        <input
+          type="tel" name="phone" id="phone"
+          class="form-control-fb has-icon"
+          placeholder="+226 70 00 00 01"
+          value="{{ phone|default:'' }}"
+          autocomplete="tel"
+          required
+        >
+      </div>
+
+      <!-- Mot de passe -->
+      <label class="form-label-fb" for="password">Mot de passe</label>
+      <div class="input-group-fb">
+        <i class="bi bi-lock-fill input-icon"></i>
+        <input
+          type="password" name="password" id="password"
+          class="form-control-fb has-icon"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+          style="padding-right: 44px;"
+        >
+        <button type="button" class="pwd-toggle" id="pwd-toggle" aria-label="Afficher le mot de passe">
+          <i class="bi bi-eye" id="pwd-icon"></i>
+        </button>
+      </div>
+
+      <!-- Se souvenir de moi -->
+      <div class="remember-row">
+        <input type="checkbox" name="remember" id="remember"
+               class="custom-check" checked>
+        <label for="remember" class="remember-label">Rester connecté</label>
+      </div>
+
+      <!-- Bouton connexion -->
+      <button type="submit" class="btn-login" id="login-btn">
+        <i class="bi bi-box-arrow-in-right"></i>
+        Se connecter
+      </button>
+    </form>
+
+    <div class="divider">ou</div>
+
+    <!-- Lien inscription -->
+    <div class="signup-link">
+      Pas encore de compte ?
+      <a href="{% url 'trader-signup' %}">Créer un compte</a>
+    </div>
+
+  </div>
+
+  <!-- Lien dashboard IMF -->
+  <div style="text-align:center;font-size:12px;color:#A8A29E;">
+    Agent IMF ?
+    <a href="{% url 'imf-dashboard' %}" style="color:#059669;font-weight:600;text-decoration:none;">
+      Accéder au dashboard →
+    </a>
+  </div>
+
+</div>
+
+<script>
+// Toggle affichage mot de passe
+document.getElementById('pwd-toggle').addEventListener('click', () => {
+  const input = document.getElementById('password');
+  const icon  = document.getElementById('pwd-icon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'bi bi-eye-slash';
+  } else {
+    input.type = 'password';
+    icon.className = 'bi bi-eye';
+  }
+});
+
+// Feedback visuel sur submit
+document.getElementById('login-form').addEventListener('submit', () => {
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Connexion...';
+});
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/static/pwa/sw.js', { scope: '/' }).catch(() => {});
+}
+</script>
+
+</body>
+</html>

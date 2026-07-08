@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>FasoBazar IA — Bienvenue</title>
+
+  <!-- PWA -->
+  <meta name="theme-color" content="#059669">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="FasoBazar">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/static/pwa/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32x32.png">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --fb-primary: #059669;
+      --fb-primary-dark: #047857;
+      --fb-primary-light: #D1FAE5;
+      --fb-amber: #F59E0B;
+      --fb-surface: #FAFAF9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--fb-surface);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+    }
+    .shell { max-width: 420px; width: 100%; }
+
+    /* Logo */
+    .logo-wrap {
+      display: flex; align-items: center; gap: 10px;
+      justify-content: center; margin-bottom: 6px;
+    }
+    .logo-sq {
+      width: 44px; height: 44px;
+      background: var(--fb-primary);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-text { font-size: 26px; font-weight: 800; color: #1C1917; }
+
+    /* Tagline */
+    .tagline {
+      font-size: 14px; color: #78716C;
+      text-align: center; margin-bottom: 8px; line-height: 1.5;
+    }
+
+    /* Badge STIC'26 */
+    .stic-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #059669, #047857);
+      color: white; font-size: 11px; font-weight: 700;
+      padding: 4px 12px; border-radius: 20px;
+      margin-bottom: 24px; letter-spacing: 0.05em;
+    }
+
+    /* Langues */
+    .langs {
+      display: flex; justify-content: center;
+      gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+    }
+    .lang-badge {
+      padding: 4px 12px; border-radius: 20px;
+      background: var(--fb-primary-light); color: #065F46;
+      font-size: 12px; font-weight: 600;
+    }
+
+    /* Steps */
+    .steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .step {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: white; border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--fb-primary); color: white;
+      font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-title { font-size: 14px; font-weight: 600; color: #1C1917; margin-bottom: 2px; }
+    .step-desc  { font-size: 12px; color: #78716C; line-height: 1.4; }
+
+    /* Boutons */
+    .btn-primary-fb {
+      width: 100%; height: 54px; border-radius: 16px; border: none;
+      background: var(--fb-primary); color: white;
+      font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      cursor: pointer; margin-bottom: 10px;
+      transition: background .15s, transform .1s;
+      text-decoration: none;
+    }
+    .btn-primary-fb:hover { background: var(--fb-primary-dark); color: white; }
+    .btn-primary-fb:active { transform: scale(.98); }
+
+    /* Bouton WhatsApp — état "Bientôt disponible" */
+    .btn-whatsapp-soon {
+      width: 100%; height: 54px; border-radius: 16px;
+      border: 2px solid #E7E5E4;
+      background: white; color: #A8A29E;
+      font-size: 15px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      cursor: default; margin-bottom: 10px;
+      position: relative; overflow: hidden;
+    }
+    .soon-tag {
+      position: absolute; top: 6px; right: 10px;
+      background: var(--fb-amber); color: white;
+      font-size: 9px; font-weight: 800;
+      padding: 2px 7px; border-radius: 10px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+
+    /* Bouton Install PWA */
+    .btn-install {
+      width: 100%; height: 48px; border-radius: 14px;
+      border: 2px solid var(--fb-primary);
+      background: var(--fb-primary-light); color: #065F46;
+      font-size: 14px; font-weight: 700;
+      display: none; /* affiché par JS si installable */
+      align-items: center; justify-content: center; gap: 8px;
+      cursor: pointer; margin-bottom: 10px;
+      transition: background .15s;
+    }
+    .btn-install:hover { background: #A7F3D0; }
+
+    /* Liens rapides */
+    .quick-links {
+      text-align: center; margin-top: 20px;
+      font-size: 12px; color: #A8A29E;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; flex-wrap: wrap;
+    }
+    .quick-links a {
+      color: var(--fb-primary); text-decoration: none;
+      font-weight: 600; padding: 4px 8px;
+      border-radius: 8px; transition: background .1s;
+    }
+    .quick-links a:hover { background: var(--fb-primary-light); }
+    .quick-links span { color: #D4D4D4; }
+
+    /* Stats rapides */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 8px; margin-bottom: 20px;
+    }
+    .stat-box {
+      background: white; border-radius: 12px;
+      padding: 10px 8px; text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .stat-val { font-size: 18px; font-weight: 800; color: var(--fb-primary); }
+    .stat-lbl { font-size: 10px; color: #78716C; margin-top: 2px; line-height: 1.3; }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- Logo + Badge STIC -->
+  <div class="text-center mb-2">
+    <div class="logo-wrap">
+      <div class="logo-sq">
+        <i class="bi bi-mic-fill" style="font-size:22px;color:white;"></i>
+      </div>
+      <span class="logo-text">FasoBazar IA</span>
+    </div>
+    <p class="tagline">Ta comptabilité par la voix.<br>Ton crédit par les données.</p>
+    <div>
+      <span class="stic-badge">
+        🏆 Sélectionné STIC'26 — Top 100 / 700 projets
+      </span>
+    </div>
+  </div>
+
+  <!-- Langues supportées -->
+  <div class="langs">
+    <span class="lang-badge">🗣 Mooré</span>
+    <span class="lang-badge">🗣 Dioula</span>
+    <span class="lang-badge">🗣 Fulfuldé</span>
+    <span class="lang-badge">🗣 Français</span>
+  </div>
+
+  <!-- Stats rapides -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-val">80%</div>
+      <div class="stat-lbl">Économie informelle BF</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">2,5M</div>
+      <div class="stat-lbl">Commerçants cibles</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">&lt;5s</div>
+      <div class="stat-lbl">Traitement IA vocal</div>
+    </div>
+  </div>
+
+  <!-- 3 étapes -->
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">Parle dans ta langue</div>
+        <div class="step-desc">Envoie une note vocale sur WhatsApp ou dans l'app — en Mooré, Dioula ou Français</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">L'IA enregistre automatiquement</div>
+        <div class="step-desc">Tes ventes et achats sont classés en moins de 5 secondes, sans saisie</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">Ton score, ta clé vers le crédit</div>
+        <div class="step-desc">Le Score de Confiance Alternatif (0–1000) ouvre les portes des IMF partenaires</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA principal — App web -->
+  <a href="{% url 'home' %}" class="btn-primary-fb">
+    <i class="bi bi-phone" style="font-size:20px;"></i>
+    Ouvrir l'application
+  </a>
+
+  <!-- Bouton Install PWA — affiché si disponible -->
+  <button class="btn-install" id="pwa-install-btn" type="button">
+    <i class="bi bi-download" style="font-size:18px;"></i>
+    Installer sur mon téléphone
+  </button>
+
+  <!-- WhatsApp — Bientôt disponible -->
+  <div class="btn-whatsapp-soon">
+    <i class="bi bi-whatsapp" style="font-size:20px;color:#25D366;"></i>
+    <span>Continuer sur WhatsApp</span>
+    <span class="soon-tag">Bientôt</span>
+  </div>
+
+  <!-- Liens rapides -->
+  <div class="quick-links">
+    <a href="{% url 'imf-dashboard' %}">
+      <i class="bi bi-bar-chart-fill"></i> Dashboard IMF
+    </a>
+    <span>·</span>
+    <a href="{% url 'demo' %}">
+      <i class="bi bi-play-circle"></i> Démo langues
+    </a>
+    <span>·</span>
+    <a href="/api/health/" target="_blank">
+      <i class="bi bi-activity"></i> Statut API
+    </a>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ── Service Worker ───────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/static/pwa/sw.js', { scope: '/' })
+    .catch(() => {});
+}
+
+// ── Bouton d'installation PWA ────────────────────────────────
+let deferredPrompt = null;
+const installBtn = document.getElementById('pwa-install-btn');
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = 'flex';
+});
+
+installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    installBtn.style.display = 'none';
+    installBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Installée !';
+  }
+  deferredPrompt = null;
+});
+
+window.addEventListener('appinstalled', () => {
+  installBtn.style.display = 'none';
+});
+
+// ── Cacher le bouton install si déjà en mode standalone ─────
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  installBtn.style.display = 'none';
+}
+</script>
+
+</body>
+</html>

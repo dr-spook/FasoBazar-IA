@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: fasobazar-ia
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py migrate --noinput
+      python manage.py seed
+      python manage.py collectstatic --noinput
+    startCommand: gunicorn fasobazar.wsgi --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    healthCheckPath: /api/health/
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: fasobazar.settings
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: "*.onrender.com,localhost,127.0.0.1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fasobazar-db
+          property: connectionString
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DEMO_PASSWORD
+        value: "demo2026"
+      - key: OZ_PRODUCT
+        value: "Pagnes bazin"
+      - key: OZ_AMOUNT
+        value: "15000"
+      - key: OZ_TYPE
+        value: "VENTE"
+
+databases:
+  - name: fasobazar-db
+    plan: free
+    region: frankfurt
+    databaseName: fasobazar
+    user: fasobazar

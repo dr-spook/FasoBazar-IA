@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}FasoBazar IA — Mon Score{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+
+  <header class="app-header">
+    <button class="logo-trigger" id="oz-trigger" type="button" aria-label="FasoBazar IA">
+      <span class="logo-square"> 
+      {% comment %} </span><span class="logo-text">FasoBazar IA</span> {% endcomment %}
+    </button>
+    <h1 class="mb-0 fw-bold" style="font-size:17px;position:absolute;left:50%;transform:translateX(-50%)">Mon Score</h1>
+    <div class="avatar">{{ trader.initials }}</div>
+  </header>
+
+  <main class="app-main">
+
+    <!-- Jauge SCA /1000 -->
+    <div class="text-center py-4">
+      <p class="text-uppercase mb-1" style="font-size:11px;font-weight:600;color:var(--fb-stone-400);letter-spacing:.08em">Score de Confiance Alternatif</p>
+      <svg width="200" height="108" viewBox="0 0 200 108" aria-label="Score {{ score.score }} sur 1000" role="meter" aria-valuenow="{{ score.score }}" aria-valuemin="0" aria-valuemax="1000">
+        <path d="M 16 100 A 84 84 0 0 1 184 100" fill="none" stroke="#E7E5E4" stroke-width="14" stroke-linecap="round"/>
+        {% if score.transaction_count >= 3 and score.score > 0 %}
+        <path d="M 16 100 A 84 84 0 0 1 184 100"
+              fill="none"
+              stroke="{% if score.score >= 700 %}#059669{% elif score.score >= 300 %}#F59E0B{% else %}#A8A29E{% endif %}"
+              stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="{{ score.score_percent }} 100"
+              pathLength="100"
+              style="transition:stroke-dasharray .6s ease-out"/>
+        {% endif %}
+      </svg>
+      <div style="margin-top:-28px;">
+        <span class="fw-bold" style="font-size:40px;color:{% if score.transaction_count < 3 %}#A8A29E{% elif score.score >= 700 %}#059669{% elif score.score >= 300 %}#F59E0B{% else %}#A8A29E{% endif %}">
+          {% if score.transaction_count < 3 %}—{% else %}{{ score.score }}{% endif %}
+        </span>
+        {% if score.transaction_count >= 3 %}<span style="color:#A8A29E;font-size:14px;">/1000</span>{% endif %}
+      </div>
+      <div class="mt-2">
+        <span class="badge rounded-pill px-3 py-2" style="font-size:13px;
+          {% if score.status == 'CONFIRME' %}background:#059669;color:white;
+          {% elif score.status == 'ELIGIBLE' %}background:#FEF3C7;color:#B45309;
+          {% else %}background:#F5F5F4;color:#78716C;{% endif %}">
+          {{ score.status_label }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Niveaux de score -->
+    <div class="fb-card mb-3">
+      <h2 class="fw-semibold mb-3" style="font-size:14px;">Niveaux du score</h2>
+      <div class="d-flex flex-column gap-2">
+        <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background:{% if score.score >= 700 %}#F0FDF4{% else %}#FAFAF9{% endif %};">
+          <div style="width:10px;height:10px;border-radius:50%;background:#059669;flex-shrink:0;"></div>
+          <div class="flex-grow-1">
+            <div style="font-size:13px;font-weight:600;color:#1C1917;">700 – 1000 · Score Confirmé</div>
+            <div style="font-size:11px;color:#78716C;">Accès aux prêts bancaires classiques</div>
+          </div>
+          {% if score.score >= 700 %}<i class="bi bi-check-circle-fill" style="color:#059669;"></i>{% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background:{% if score.score >= 300 and score.score < 700 %}#FFFBEB{% else %}#FAFAF9{% endif %};">
+          <div style="width:10px;height:10px;border-radius:50%;background:#F59E0B;flex-shrink:0;"></div>
+          <div class="flex-grow-1">
+            <div style="font-size:13px;font-weight:600;color:#1C1917;">300 – 699 · Éligible Crédit</div>
+            <div style="font-size:11px;color:#78716C;">Accès aux microcrédits IMF partenaires</div>
+          </div>
+          {% if score.score >= 300 and score.score < 700 %}<i class="bi bi-check-circle-fill" style="color:#F59E0B;"></i>{% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background:#FAFAF9;">
+          <div style="width:10px;height:10px;border-radius:50%;background:#A8A29E;flex-shrink:0;"></div>
+          <div class="flex-grow-1">
+            <div style="font-size:13px;font-weight:600;color:#1C1917;">0 – 299 · En Construction</div>
+            <div style="font-size:11px;color:#78716C;">Enregistre plus de transactions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demande de crédit -->
+    {% if score.eligible_credit %}
+    <div class="fb-card mb-3" style="border:2px solid var(--fb-primary);">
+      <div class="d-flex align-items-start gap-3">
+        <div style="width:44px;height:44px;background:var(--fb-primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="bi bi-bank" style="color:var(--fb-primary);font-size:20px;"></i>
+        </div>
+        <div class="flex-grow-1">
+          <h3 class="fw-bold mb-1" style="font-size:15px;color:#1C1917;">Tu es éligible au crédit !</h3>
+          <p class="mb-2" style="font-size:13px;color:#57534E;">
+            Sur la base de ton score et de ton historique, tu peux demander jusqu'à
+            <strong style="color:var(--fb-primary);">{{ credit_estimate|floatformat:0 }} FCFA</strong>
+          </p>
+          {% if trader.is_premium %}
+          <button class="btn fw-semibold w-100" style="background:var(--fb-primary);color:white;border-radius:12px;height:44px;"
+                  onclick="showToast('Demande envoyée aux IMF partenaires ! Vous serez contacté sous 48h.','success')">
+            <i class="bi bi-send me-2"></i>Demander un crédit
+          </button>
+          {% else %}
+          <div style="font-size:12px;color:#78716C;background:#FEF3C7;border-radius:10px;padding:10px 12px;">
+            <i class="bi bi-star-fill me-1" style="color:#B45309;"></i>
+            <strong>Premium requis</strong> — 500 FCFA/mois pour accéder à la demande de crédit directe
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Conseils -->
+    <div class="fb-card mb-3">
+      <h2 class="fw-semibold mb-3" style="font-size:14px;">Comment augmenter ton score</h2>
+      {% for tip in tips %}
+      <div class="d-flex align-items-start gap-3 mb-2">
+        <i class="bi bi-check-circle-fill mt-1 flex-shrink-0" style="color:var(--fb-primary);font-size:15px;"></i>
+        <p class="mb-0" style="font-size:13px;color:#57534E;">{{ tip }}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Stats -->
+    <div class="fb-card mb-3">
+      <h2 class="fw-semibold mb-3" style="font-size:14px;">Mes statistiques</h2>
+      <div class="row g-2">
+        <div class="col-6"><div class="p-3 rounded-3" style="background:#F5F5F4;"><div class="fw-bold" style="font-size:20px;">{{ score.transaction_count }}</div><div style="font-size:11px;color:#78716C;">Transactions</div></div></div>
+        <div class="col-6"><div class="p-3 rounded-3" style="background:#F5F5F4;"><div class="fw-bold" style="font-size:20px;">{{ score.total_revenue|floatformat:0 }}</div><div style="font-size:11px;color:#78716C;">FCFA ventes</div></div></div>
+        <div class="col-6"><div class="p-3 rounded-3" style="background:#F5F5F4;"><div class="fw-bold" style="font-size:20px;{% if score.eligible_credit %}color:var(--fb-primary){% endif %}">{% if score.eligible_credit %}Oui{% else %}Non{% endif %}</div><div style="font-size:11px;color:#78716C;">Éligible crédit</div></div></div>
+        <div class="col-6"><div class="p-3 rounded-3" style="background:#F5F5F4;"><div class="fw-bold" style="font-size:20px;">{% if score.transaction_count < 3 %}{{ 3|add:"-1"|add:"0" }}{% else %}✓{% endif %}</div><div style="font-size:11px;color:#78716C;">{% if score.transaction_count < 3 %}tx restantes{% else %}Seuil atteint{% endif %}</div></div></div>
+      </div>
+    </div>
+
+    <!-- Message progression -->
+    <div class="p-3 rounded-3 d-flex align-items-start gap-3 mb-3" style="background:var(--fb-primary-light);">
+      <i class="bi bi-graph-up-arrow flex-shrink-0 mt-1" style="color:var(--fb-primary);font-size:18px;"></i>
+      <p class="mb-0" style="font-size:13px;color:#065F46;">{{ message }}</p>
+    </div>
+
+    <!-- Abonnement Premium -->
+    {% if not trader.is_premium %}
+    <div class="fb-card mb-3" style="border:2px dashed #F59E0B;">
+      <div class="d-flex align-items-center gap-3 mb-2">
+        <i class="bi bi-star-fill" style="font-size:24px;color:#F59E0B;"></i>
+        <div>
+          <div class="fw-bold" style="font-size:15px;">FasoBazar IA Premium</div>
+          <div style="font-size:12px;color:#78716C;">500 FCFA / mois</div>
+        </div>
+      </div>
+      <ul class="mb-3 ps-3" style="font-size:13px;color:#57534E;">
+        <li>Demande de crédit directe aux IMF</li>
+        <li>Alertes et conseils personnalisés</li>
+        <li>Historique illimité</li>
+        <li>Support prioritaire</li>
+      </ul>
+      <button class="btn fw-semibold w-100" style="background:#F59E0B;color:white;border-radius:12px;height:44px;"
+              onclick="showToast('Fonctionnalité bientôt disponible via Mobile Money !','info')">
+        <i class="bi bi-star me-2"></i>Activer Premium — 500 FCFA/mois
+      </button>
+    </div>
+    {% endif %}
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="{% url 'home' %}"    class="nav-item"><i class="bi bi-mic"></i>Enregistrer</a>
+    <a href="{% url 'journal' %}" class="nav-item"><i class="bi bi-journal"></i>Journal</a>
+    <a href="{% url 'score' %}"   class="nav-item active"><i class="bi bi-star"></i>Mon Score</a>
+  </nav>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+{% endblock %}

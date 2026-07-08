@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>FasoBazar IA — Créer un compte</title>
+  <meta name="theme-color" content="#059669">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/static/pwa/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32x32.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --fb-primary: #059669; --fb-primary-dark: #047857; --fb-primary-light: #D1FAE5; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #FAFAF9;
+      min-height: 100dvh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px 16px;
+    }
+    .auth-shell { max-width: 400px; width: 100%; }
+    .auth-header { text-align: center; margin-bottom: 24px; }
+    .logo-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px; }
+    .logo-sq { width: 40px; height: 40px; background: var(--fb-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .logo-name  { font-size: 22px; font-weight: 800; color: #1C1917; }
+    .auth-title { font-size: 20px; font-weight: 700; color: #1C1917; margin-bottom: 4px; }
+    .auth-sub   { font-size: 13px; color: #78716C; }
+    .auth-card  { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,.08); margin-bottom: 16px; }
+    .form-label-fb { font-size: 13px; font-weight: 600; color: #1C1917; margin-bottom: 5px; display: block; }
+    .form-control-fb {
+      width: 100%; height: 48px;
+      border: 1.5px solid #E7E5E4; border-radius: 12px;
+      padding: 0 16px; font-size: 15px; font-family: 'Inter', system-ui;
+      background: #FAFAF9; color: #1C1917; outline: none;
+      transition: border-color .15s, box-shadow .15s;
+      margin-bottom: 14px;
+    }
+    .form-control-fb:focus { border-color: var(--fb-primary); box-shadow: 0 0 0 3px rgba(5,150,105,.12); background: white; }
+    .form-control-fb::placeholder { color: #A8A29E; }
+    .form-control-fb.has-icon { padding-left: 40px; }
+    .input-group-fb { position: relative; }
+    .input-icon { position: absolute; left: 14px; top: 14px; color: #A8A29E; font-size: 16px; pointer-events: none; }
+    .field-error { font-size: 12px; color: #DC2626; margin-top: -10px; margin-bottom: 10px; }
+    .select-fb {
+      width: 100%; height: 48px;
+      border: 1.5px solid #E7E5E4; border-radius: 12px;
+      padding: 0 16px; font-size: 15px; font-family: 'Inter', system-ui;
+      background: #FAFAF9; color: #1C1917; outline: none;
+      margin-bottom: 14px; appearance: none; cursor: pointer;
+    }
+    .pwd-toggle { position: absolute; right: 14px; top: 12px; color: #A8A29E; cursor: pointer; background: none; border: none; padding: 0; font-size: 16px; }
+    .pwd-toggle:hover { color: var(--fb-primary); }
+    .btn-register {
+      width: 100%; height: 52px; border-radius: 14px; border: none;
+      background: var(--fb-primary); color: white;
+      font-size: 16px; font-weight: 700; font-family: 'Inter', system-ui;
+      cursor: pointer; transition: background .15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 4px;
+    }
+    .btn-register:hover { background: var(--fb-primary-dark); }
+    .info-box { background: var(--fb-primary-light); border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #065F46; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 8px; }
+    .sms-note { background: #FEF3C7; border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #B45309; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .login-link { text-align: center; font-size: 14px; color: #57534E; }
+    .login-link a { color: var(--fb-primary); font-weight: 700; text-decoration: none; }
+    .divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; color: #A8A29E; font-size: 13px; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #E7E5E4; }
+  </style>
+</head>
+<body>
+<div class="auth-shell">
+
+  <div class="auth-header">
+    <div class="logo-row">
+      <div class="logo-sq"><i class="bi bi-mic-fill" style="font-size:18px;color:white;"></i></div>
+      <span class="logo-name">FasoBazar IA</span>
+    </div>
+    <h1 class="auth-title">Créer un compte</h1>
+    <p class="auth-sub">Gratuit · Pas de carte bancaire</p>
+  </div>
+
+  <div class="auth-card">
+
+    <!-- Info -->
+    <div class="info-box">
+      <i class="bi bi-check-circle-fill" style="flex-shrink:0;margin-top:1px;"></i>
+      <span>Ton numéro de téléphone est ton identifiant unique. Tu n'as pas besoin d'email.</span>
+    </div>
+
+    <!-- Note SMS -->
+    <div class="sms-note">
+      <i class="bi bi-phone" style="flex-shrink:0;"></i>
+      <span>Vérification SMS · <strong>Bientôt disponible</strong> — compte actif immédiatement</span>
+    </div>
+
+    <form method="post" id="register-form">
+      {% csrf_token %}
+
+      <!-- Nom -->
+      <label class="form-label-fb" for="name">Ton prénom et nom</label>
+      <div class="input-group-fb">
+        <i class="bi bi-person-fill input-icon"></i>
+        <input type="text" name="name" id="name"
+               class="form-control-fb has-icon"
+               placeholder="Aïssata Ouédraogo"
+               value="{{ name|default:'' }}"
+               autocomplete="name" required>
+      </div>
+      {% if errors.name %}<div class="field-error">{{ errors.name }}</div>{% endif %}
+
+      <!-- Numéro -->
+      <label class="form-label-fb" for="phone">Numéro de téléphone (WhatsApp)</label>
+      <div class="input-group-fb">
+        <i class="bi bi-telephone-fill input-icon"></i>
+        <input type="tel" name="phone" id="phone"
+               class="form-control-fb has-icon"
+               placeholder="+226 70 00 00 01"
+               value="{{ phone|default:'' }}"
+               autocomplete="tel" required>
+      </div>
+      {% if errors.phone %}<div class="field-error">{{ errors.phone }}</div>{% endif %}
+
+      <!-- Langue -->
+      <label class="form-label-fb" for="language">Ta langue préférée</label>
+      <select name="language" id="language" class="select-fb">
+        <option value="moore"    {% if language == 'moore'    %}selected{% endif %}>🌍 Mooré</option>
+        <option value="dioula"   {% if language == 'dioula'   %}selected{% endif %}>🌍 Dioula</option>
+        <option value="fulfulde" {% if language == 'fulfulde' %}selected{% endif %}>🌍 Fulfuldé</option>
+        <option value="fr"       {% if language == 'fr'       %}selected{% endif %}>🇫🇷 Français</option>
+      </select>
+
+      <!-- Mot de passe -->
+      <label class="form-label-fb" for="password">Mot de passe</label>
+      <div class="input-group-fb">
+        <i class="bi bi-lock-fill input-icon"></i>
+        <input type="password" name="password" id="password"
+               class="form-control-fb has-icon"
+               placeholder="Minimum 4 chiffres"
+               autocomplete="new-password"
+               style="padding-right:44px;"
+               required>
+        <button type="button" class="pwd-toggle" id="pwd-toggle">
+          <i class="bi bi-eye" id="pwd-icon"></i>
+        </button>
+      </div>
+      {% if errors.password %}<div class="field-error">{{ errors.password }}</div>{% endif %}
+
+      <button type="submit" class="btn-register" id="register-btn">
+        <i class="bi bi-person-plus-fill"></i>
+        Créer mon compte
+      </button>
+    </form>
+
+    <div class="divider">déjà inscrite ?</div>
+    <div class="login-link">
+      <a href="{% url 'trader-login' %}">← Se connecter</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.getElementById('pwd-toggle').addEventListener('click', () => {
+  const input = document.getElementById('password');
+  const icon  = document.getElementById('pwd-icon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'bi bi-eye-slash';
+  } else {
+    input.type = 'password';
+    icon.className = 'bi bi-eye';
+  }
+});
+
+document.getElementById('register-form').addEventListener('submit', () => {
+  const btn = document.getElementById('register-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Création...';
+});
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/static/pwa/sw.js', { scope: '/' }).catch(() => {});
+}
+</script>
+</body>
+</html>

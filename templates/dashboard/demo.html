@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% block title %}FasoBazar IA — Démo STIC'26{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+
+  <header class="app-header">
+    <button class="logo-trigger" id="oz-trigger" type="button" aria-label="FasoBazar IA">
+      <span class="logo-square"></span>
+      {% comment %} <span class="logo-text">FasoBazar IA</span> {% endcomment %}
+    </button>
+    <h1 class="mb-0 fw-bold" style="font-size:15px;position:absolute;left:50%;transform:translateX(-50%)">Démo STIC'26</h1>
+    <a href="{% url 'home' %}" class="btn btn-sm" style="background:var(--fb-primary-light);color:#065F46;border-radius:10px;font-size:12px;">← App</a>
+  </header>
+
+  <main class="app-main">
+
+    <!-- Indicateur Mode Oz -->
+    <div id="oz-indicator" class="mb-3 p-3 rounded-3 text-center d-none"
+         style="background:#FEF3C7;border:1px solid #F59E0B;">
+      <span style="font-size:13px;color:#B45309;font-weight:600;">
+        ⚡ Mode Oz ACTIVÉ — Pipeline simulé (résultats garantis)
+      </span>
+    </div>
+
+    <!-- Intro -->
+    <div class="fb-card mb-3">
+      <h2 class="fw-bold mb-1" style="font-size:16px;">Cas de test — Langues locales</h2>
+      <p style="font-size:13px;color:var(--fb-stone-600);margin-bottom:0;">
+        10 scénarios pré-enregistrés en Mooré et Dioula.
+        Clique sur "Jouer" pour simuler l'envoi d'une note vocale.
+        <strong>Mode Oz activé automatiquement</strong> si les fichiers sont des placeholders.
+      </p>
+    </div>
+
+    <!-- Tabs Mooré / Dioula -->
+    <ul class="nav nav-pills mb-3 gap-2" id="langTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active px-4" id="moore-tab" data-bs-toggle="pill"
+                data-bs-target="#moore-panel" type="button" role="tab"
+                style="border-radius:20px;font-size:13px;">
+          🌍 Mooré (5)
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link px-4" id="dioula-tab" data-bs-toggle="pill"
+                data-bs-target="#dioula-panel" type="button" role="tab"
+                style="border-radius:20px;font-size:13px;">
+          🌍 Dioula (5)
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="langTabContent">
+
+      <!-- MOORÉ -->
+      <div class="tab-pane fade show active" id="moore-panel" role="tabpanel">
+        {% for fx in fixtures %}
+        {% if fx.langue == 'moore' %}
+        <div class="fb-card mb-3 fixture-card" id="card-{{ fx.id }}">
+          <div class="d-flex align-items-start gap-3 mb-2">
+            <span class="badge rounded-pill" style="background:var(--fb-primary-light);color:#065F46;font-size:11px;white-space:nowrap;">
+              {{ fx.langue_label }}
+            </span>
+            <span class="badge rounded-pill {% if fx.expected_type == 'VENTE' %}text-white{% else %}{% endif %}"
+                  style="font-size:11px;{% if fx.expected_type == 'VENTE' %}background:var(--fb-primary){% else %}background:var(--fb-amber-light);color:#B45309{% endif %}">
+              {{ fx.expected_type }}
+            </span>
+          </div>
+
+          <!-- Script à dire -->
+          <div class="p-3 rounded-3 mb-2" style="background:var(--fb-stone-100);">
+            <p class="mb-1 fst-italic" style="font-size:14px;font-weight:600;color:var(--fb-stone-900);">
+              "{{ fx.script }}"
+            </p>
+            <p class="mb-0" style="font-size:12px;color:var(--fb-stone-400);">
+              → {{ fx.traduction }}
+            </p>
+          </div>
+
+          <!-- Résultat attendu -->
+          <div class="d-flex gap-2 mb-3 flex-wrap">
+            <span class="badge" style="background:#F0FDF4;color:#166534;border:1px solid #BBF7D0;font-size:12px;padding:5px 10px;">
+              📦 {{ fx.expected_product }}
+            </span>
+            <span class="badge" style="background:#F0FDF4;color:#166534;border:1px solid #BBF7D0;font-size:12px;padding:5px 10px;">
+              💰 {{ fx.expected_amount|floatformat:0 }} FCFA
+            </span>
+          </div>
+
+          <!-- Bouton jouer + résultat -->
+          <div class="d-flex align-items-center gap-2">
+            <button
+              class="btn btn-sm play-fixture-btn fw-semibold flex-grow-1"
+              style="background:var(--fb-primary);color:white;border-radius:10px;height:40px;"
+              data-fixture-id="{{ fx.id }}"
+              data-trader-id="{{ trader_id }}"
+            >
+              <i class="bi bi-play-fill me-1"></i> Jouer
+            </button>
+            <audio id="audio-{{ fx.id }}" src="/static/{{ fx.file }}" preload="none" class="d-none"></audio>
+          </div>
+
+          <!-- Zone résultat -->
+          <div id="result-{{ fx.id }}" class="mt-2 d-none">
+            <div class="p-3 rounded-3 result-box"></div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+
+      <!-- DIOULA -->
+      <div class="tab-pane fade" id="dioula-panel" role="tabpanel">
+        {% for fx in fixtures %}
+        {% if fx.langue == 'dioula' %}
+        <div class="fb-card mb-3 fixture-card" id="card-{{ fx.id }}">
+          <div class="d-flex align-items-start gap-3 mb-2">
+            <span class="badge rounded-pill" style="background:#EDE9FE;color:#6D28D9;font-size:11px;white-space:nowrap;">
+              {{ fx.langue_label }}
+            </span>
+            <span class="badge rounded-pill {% if fx.expected_type == 'VENTE' %}text-white{% else %}{% endif %}"
+                  style="font-size:11px;{% if fx.expected_type == 'VENTE' %}background:var(--fb-primary){% else %}background:var(--fb-amber-light);color:#B45309{% endif %}">
+              {{ fx.expected_type }}
+            </span>
+          </div>
+
+          <div class="p-3 rounded-3 mb-2" style="background:var(--fb-stone-100);">
+            <p class="mb-1 fst-italic" style="font-size:14px;font-weight:600;color:var(--fb-stone-900);">
+              "{{ fx.script }}"
+            </p>
+            <p class="mb-0" style="font-size:12px;color:var(--fb-stone-400);">
+              → {{ fx.traduction }}
+            </p>
+          </div>
+
+          <div class="d-flex gap-2 mb-3 flex-wrap">
+            <span class="badge" style="background:#F0FDF4;color:#166534;border:1px solid #BBF7D0;font-size:12px;padding:5px 10px;">
+              📦 {{ fx.expected_product }}
+            </span>
+            <span class="badge" style="background:#F0FDF4;color:#166534;border:1px solid #BBF7D0;font-size:12px;padding:5px 10px;">
+              💰 {{ fx.expected_amount|floatformat:0 }} FCFA
+            </span>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <button
+              class="btn btn-sm play-fixture-btn fw-semibold flex-grow-1"
+              style="background:#7C3AED;color:white;border-radius:10px;height:40px;"
+              data-fixture-id="{{ fx.id }}"
+              data-trader-id="{{ trader_id }}"
+            >
+              <i class="bi bi-play-fill me-1"></i> Jouer
+            </button>
+            <audio id="audio-{{ fx.id }}" src="/static/{{ fx.file }}" preload="none" class="d-none"></audio>
+          </div>
+
+          <div id="result-{{ fx.id }}" class="mt-2 d-none">
+            <div class="p-3 rounded-3 result-box"></div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Lien dashboard IMF -->
+    <div class="fb-card mb-3 text-center">
+      <p class="mb-2" style="font-size:13px;color:var(--fb-stone-600);">Voir le résultat dans le Dashboard IMF</p>
+      <a href="{% url 'imf-dashboard' %}" target="_blank"
+         class="btn fw-semibold"
+         style="background:var(--fb-primary);color:white;border-radius:12px;">
+        <i class="bi bi-bar-chart me-2"></i>Ouvrir Dashboard IMF
+      </a>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navigation">
+    <a href="{% url 'home' %}"    class="nav-item"><i class="bi bi-mic"></i>Enregistrer</a>
+    <a href="{% url 'journal' %}" class="nav-item"><i class="bi bi-journal"></i>Journal</a>
+    <a href="{% url 'score' %}"   class="nav-item"><i class="bi bi-star"></i>Score</a>
+  </nav>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CSRF = '{{ csrf_token }}';
+
+// Afficher l'indicateur Mode Oz si actif
+document.addEventListener('DOMContentLoaded', () => {
+  if (window._OZ_MODE) {
+    document.getElementById('oz-indicator').classList.remove('d-none');
+  }
+});
+
+// Écouter les changements de mode Oz
+const origActivate = window.activateOz;
+
+// Boutons "Jouer"
+document.querySelectorAll('.play-fixture-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const fixtureId = btn.dataset.fixtureId;
+    const traderId  = btn.dataset.traderId;
+    const isOz      = window._OZ_MODE || false;
+
+    // État chargement
+    const origText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Traitement...';
+    btn.disabled  = true;
+
+    // Jouer l'audio (si le fichier n'est pas un placeholder)
+    const audioEl = document.getElementById('audio-' + fixtureId);
+    if (audioEl) {
+      try { audioEl.play(); } catch(e) { /* placeholder silencieux */ }
+    }
+
+    try {
+      const resp = await fetch(`/api/fixtures/${fixtureId}/play/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'X-CSRFToken':   CSRF,
+          ...(isOz ? {'X-Oz-Mode': 'true'} : {}),
+        },
+        body: JSON.stringify({ trader_id: traderId, is_oz: isOz }),
+      });
+
+      const json = await resp.json();
+
+      if (!json.success) {
+        showResult(fixtureId, false, null, json.error?.message || 'Erreur');
+        showToast(json.error?.message || 'Erreur', 'error');
+        return;
+      }
+
+      const { transaction: tx, new_score, transcript, mode, langue } = json.data;
+      showResult(fixtureId, true, tx, transcript, mode, new_score, langue);
+      showToast(
+        `${tx.type === 'VENTE' ? '📈' : '🛒'} ${tx.type} — ${tx.amount_fmt} FCFA | Score: ${new_score}/100`,
+        tx.type === 'VENTE' ? 'success' : 'achat'
+      );
+
+    } catch(e) {
+      showResult(fixtureId, false, null, 'Erreur réseau');
+      showToast('Erreur réseau', 'error');
+    } finally {
+      btn.innerHTML = origText;
+      btn.disabled  = false;
+    }
+  });
+});
+
+function showResult(id, success, tx, transcript, mode, score, langue) {
+  const container = document.getElementById('result-' + id);
+  const box       = container.querySelector('.result-box');
+  container.classList.remove('d-none');
+
+  const modeLabel = {
+    'OZ':          '⚡ Mode Oz',
+    'OZ_FALLBACK': '⚡ Oz automatique (placeholder)',
+    'REAL':        '🤖 Pipeline IA réel',
+  }[mode] || mode;
+
+  if (success && tx) {
+    const isVente = tx.type === 'VENTE';
+    box.style.background = isVente ? '#F0FDF4' : '#FFFBEB';
+    box.style.border     = `1px solid ${isVente ? '#BBF7D0' : '#FDE68A'}`;
+    box.innerHTML = `
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="fw-bold" style="color:${isVente ? '#166534' : '#B45309'};font-size:15px;">
+          ${isVente ? '+' : '−'}${tx.amount_fmt} FCFA
+        </span>
+        <span class="badge" style="background:#E5E7EB;color:#374151;font-size:10px;">${modeLabel}</span>
+      </div>
+      <div style="font-size:13px;color:#374151;margin-bottom:4px;">
+        <strong>${tx.type}</strong> — ${tx.product}
+      </div>
+      ${transcript ? `<div style="font-size:11px;color:#6B7280;font-style:italic;">"${transcript.slice(0,80)}"</div>` : ''}
+      <div style="font-size:11px;color:#059669;margin-top:4px;">Score mis à jour : ${score}/100</div>
+    `;
+  } else {
+    box.style.background = '#FEF2F2';
+    box.style.border     = '1px solid #FECACA';
+    box.innerHTML = `<span style="color:#DC2626;font-size:13px;">❌ ${transcript || 'Erreur'}</span>`;
+  }
+}
+</script>
+{% endblock %}
